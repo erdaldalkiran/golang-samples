@@ -21,13 +21,17 @@ func startWebserver() {
 func startLoadTest() {
 	count := 0
 	for {
-		resp, err := http.Get("http://localhost:8080/")
+		resp, err := http.Get("http://google.com/")
+		// resp, err := http.Get("http://localhost:8080/")
+
 		if err != nil {
 			panic(fmt.Sprintf("Got error: %v", err))
 		}
 		//#1 solution
+		//???server needs to close request to drain request body???
 		io.Copy(ioutil.Discard, resp.Body)
 		resp.Body.Close()
+		fmt.Println(resp)
 		log.Printf("Finished GET request #%v", count)
 		count++
 	}

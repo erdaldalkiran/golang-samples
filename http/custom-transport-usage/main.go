@@ -29,9 +29,11 @@ func startLoadTest() {
 	count := 0
 	for {
 		//problem
+		// resp, err := http.Get("http://google.com/")
 		// resp, err := http.Get("http://localhost:8080/")
 		//fix
-		resp, err := myClient.Get("http://localhost:8080/")
+		//resp, err := myClient.Get("http://localhost:8080/")
+		resp, err := myClient.Get("http://golang.org")
 		if err != nil {
 			panic(fmt.Sprintf("Got error: %v", err))
 		}
@@ -45,7 +47,7 @@ func startLoadTest() {
 }
 
 func main() {
-	// Customize the Transport to have larger connection pool
+	//Customize the Transport to have larger connection pool
 	defaultRoundTripper := http.DefaultTransport
 	defaultTransportPointer, ok := defaultRoundTripper.(*http.Transport)
 	if !ok {
@@ -57,7 +59,7 @@ func main() {
 
 	myClient = &http.Client{Transport: &defaultTransport}
 
-	startWebserver()
+	//startWebserver()
 
 	for i := 0; i < 100; i++ {
 		go startLoadTest()
