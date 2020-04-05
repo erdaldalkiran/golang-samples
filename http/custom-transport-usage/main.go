@@ -29,11 +29,11 @@ func startLoadTest() {
 	count := 0
 	for {
 		//problem
-		// resp, err := http.Get("http://google.com/")
+		resp, err := http.Get("http://golang.org/")
 		// resp, err := http.Get("http://localhost:8080/")
 		//fix
 		//resp, err := myClient.Get("http://localhost:8080/")
-		resp, err := myClient.Get("http://golang.org")
+		//resp, err := myClient.Get("http://golang.org")
 		if err != nil {
 			panic(fmt.Sprintf("Got error: %v", err))
 		}
