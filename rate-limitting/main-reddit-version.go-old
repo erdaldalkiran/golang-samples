@@ -1,0 +1,76 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	var ticketSpendTime = 200 * time.Millisecond
+	var limit = 10
+	var duration = 1 * time.Second
+
+	ticketMaster := NewTicketMaster(limit, duration)
+
+	//end program after 4 seconds
+	go func() {
+		timer := time.NewTimer(time.Duration(4 * time.Second))
+		<-timer.C
+		ticketMaster.Close()
+	}()
+
+	for range ticketMaster.Tickets {
+		fmt.Println("using a ticket")
+		time.Sleep(ticketSpendTime)
+	}
+}
+
+type TicketMaster struct {
+	limit    int
+	duration time.Duration
+	Tickets  chan struct{}
+	done     chan bool
+}
+
+func NewTicketMaster(l int, d time.Duration) *TicketMaster {
+	ch := make(chan struct{}, l)
+	for i := 0; i < l; i++ {
+		ch <- struct{}{}
+	}
+
+	rl := &TicketMaster{l, d, ch, make(chan bool)}
+	rl.autoFill()
+	return rl
+}
+
+//Close ...
+func (r *TicketMaster) Close() {
+	close(r.done)
+}
+
+func (r *TicketMaster) autoFill() {
+	replenishTickets := func() {
+		for i := 0; i < r.limit; i++ {
+			select {
+			case r.Tickets <- struct{}{}:
+				fmt.Println("adding a ticket")
+			default:
+				fmt.Println("tickets are replenished")
+				return
+			}
+		}
+	}
+
+	go func() {
+		defer close(r.Tickets)
+		ticker := time.NewTicker(r.duration)
+		for {
+			select {
+			case <-r.done:
+				return
+			case <-ticker.C:
+				replenishTickets()
+			}
+		}
+	}()
+}
